@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>DevX — Editor de Imagem</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Anybody:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0a0a0a; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+    body { font-family: "Anybody", system-ui, sans-serif; background: #0a0a0a; color: #fff; overflow: hidden; height: 100vh; display: flex; flex-direction: column; user-select: none; }
+
+    .toolbar {
+      display: flex; align-items: center; gap: 4px; padding: 8px 14px;
+      background: #111; border-bottom: 1px solid #1e1e1e; flex-shrink: 0; z-index: 100;
+    }
+    .toolbar-group { display: flex; gap: 2px; align-items: center; }
+    .toolbar-sep { width: 1px; height: 22px; background: #222; margin: 0 6px; flex-shrink: 0; }
+    .toolbar-logo { font-size: 13px; font-weight: 700; letter-spacing: 1px; margin-right: 12px; opacity: 0.6; }
+    .tb {
+      background: none; border: 1px solid transparent; color: #aaa; width: 32px; height: 32px;
+      border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 16px; transition: all 0.15s; position: relative; flex-shrink: 0;
+    }
+    .tb:hover { background: #1a1a1a; color: #fff; border-color: #2a2a2a; }
+    .tb.active { background: #1a1a1a; color: #fff; border-color: #4ade80; }
+    .tb[disabled] { opacity: 0.3; pointer-events: none; }
+    .tb .tip {
+      position: absolute; bottom: -26px; left: 50%; transform: translateX(-50%);
+      background: #000; color: #aaa; font-size: 9px; padding: 3px 6px; border-radius: 4px;
+      white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 200;
+      border: 1px solid #222;
+    }
+    .tb:hover .tip { opacity: 1; }
+
+    .toolbar-right { margin-left: auto; display: flex; gap: 4px; align-items: center; }
+    .toolbar-zoom { display: flex; align-items: center; gap: 4px; background: #0a0a0a; border: 1px solid #1e1e1e; border-radius: 6px; padding: 2px 4px; }
+    .toolbar-zoom span { font-size: 10px; color: #888; min-width: 36px; text-align: center; font-weight: 600; }
+
+    .btn-export {
+      background: #4ade80; color: #000; border: none; font-family: inherit;
+      font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 6px;
+      cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.15s;
+    }
+    .btn-export:hover { background: #22c55e; }
+
+    .canvas-area {
+      flex: 1; overflow: auto; display: flex; align-items: center; justify-content: center;
+      background: #080808; position: relative;
+      background-image: repeating-conic-gradient(#111 0% 25%, transparent 0% 50%);
+      background-size: 16px 16px;
+    }
+    .canvas-wrap {
+      position: relative; display: inline-block; box-shadow: 0 4px 40px rgba(0,0,0,0.6);
+    }
+    #main-canvas { display: block; image-rendering: auto; }
+
+    .crop-overlay {
+      position: absolute; inset: 0; z-index: 50; display: none;
+    }
+    .crop-overlay.active { display: block; }
+    .crop-dim { position: absolute; background: rgba(0,0,0,0.6); }
+    .crop-box {
+      position: absolute; border: 2px dashed #4ade80; cursor: move; z-index: 51;
+    }
+    .crop-handle {
+      position: absolute; width: 10px; height: 10px; background: #4ade80; border-radius: 2px; z-index: 52;
+    }
+    .crop-handle.nw { top: -5px; left: -5px; cursor: nw-resize; }
+    .crop-handle.ne { top: -5px; right: -5px; cursor: ne-resize; }
+    .crop-handle.sw { bottom: -5px; left: -5px; cursor: sw-resize; }
+    .crop-handle.se { bottom: -5px; right: -5px; cursor: se-resize; }
+
+    .ann-layer {
+      position: absolute; inset: 0; z-index: 40; pointer-events: none;
+    }
+    .ann-layer.drawing { pointer-events: auto; cursor: crosshair; }
+
+    .bottom-bar {
+      display: flex; align-items: center; gap: 10px; padding: 6px 14px;
+      background: #111; border-top: 1px solid #1e1e1e; flex-shrink: 0;
+      font-size: 10px; color: #555;
+    }
+    .bottom-bar .info { margin-left: auto; }
+
+    .dropdown {
+      position: absolute; top: 38px; left: 0; background: #141414; border: 1px solid #222;
+      border-radius: 8px; padding: 4px; z-index: 300; min-width: 140; display: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+    .dropdown.open { display: block; }
+    .dd-item {
+      display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 5px;
+      cursor: pointer; font-size: 11px; color: #ccc; transition: background 0.1s;
+    }
+    .dd-item:hover { background: #1e1e1e; color: #fff; }
+    .dd-item .dd-key { margin-left: auto; font-size: 9px; color: #444; font-family: monospace; }
+
+    .prop-panel {
+      position: fixed; right: 12px; top: 56px; background: #141414; border: 1px solid #222;
+      border-radius: 10px; padding: 12px; width: 200px; z-index: 200; display: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .prop-panel.open { display: block; }
+    .prop-title { font-size: 10px; font-weight: 700; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .prop-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+    .prop-label { font-size: 10px; color: #666; width: 50px; flex-shrink: 0; }
+    .prop-input {
+      flex: 1; background: #0a0a0a; border: 1px solid #1e1e1e; border-radius: 4px;
+      color: #ccc; font-family: inherit; font-size: 10px; padding: 4px 6px; outline: none;
+    }
+    .prop-input:focus { border-color: #4ade80; }
+    .prop-color { width: 24px; height: 24px; border: 1px solid #333; border-radius: 4px; cursor: pointer; padding: 0; }
+
+    .toast {
+      position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%);
+      background: #000; color: #fff; padding: 8px 18px; border: 1px solid #333;
+      border-radius: 8px; font-size: 11px; z-index: 999; opacity: 0; transition: opacity 0.2s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar" id="toolbar">
+    <span class="toolbar-logo">DevX</span>
+
+    <div class="toolbar-group">
+      <button class="tb" id="tb-undo" disabled title="Desfazer">↩<span class="tip">Desfazer (Ctrl+Z)</span></button>
+      <button class="tb" id="tb-redo" disabled title="Refazer">↪<span class="tip">Refazer (Ctrl+Y)</span></button>
+    </div>
+
+    <div class="toolbar-sep"></div>
+
+    <div class="toolbar-group">
+      <button class="tb" id="tb-crop" title="Recortar">✂<span class="tip">Recortar (C)</span></button>
+      <button class="tb" id="tb-rotate-l" title="Girar esquerda">↺<span class="tip">Girar 90° Esq</span></button>
+      <button class="tb" id="tb-rotate-r" title="Girar direita">↻<span class="tip">Girar 90° Dir</span></button>
+      <button class="tb" id="tb-flip-h" title="Espelhar horizontal">⇔<span class="tip">Espelhar H</span></button>
+      <button class="tb" id="tb-flip-v" title="Espelhar vertical">⇕<span class="tip">Espelhar V</span></button>
+    </div>
+
+    <div class="toolbar-sep"></div>
+
+    <div class="toolbar-group">
+      <button class="tb" id="tb-draw-rect" title="Retângulo">▭<span class="tip">Retângulo (R)</span></button>
+      <button class="tb" id="tb-draw-arrow" title="Seta">➜<span class="tip">Seta (A)</span></button>
+      <button class="tb" id="tb-draw-text" title="Texto">T<span class="tip">Texto (T)</span></button>
+      <button class="tb" id="tb-draw-blur" title="Desfoque">◩<span class="tip">Desfoque (B)</span></button>
+      <button class="tb" id="tb-draw-pen" title="Caneta livre">✏<span class="tip">Caneta (P)</span></button>
+    </div>
+
+    <div class="toolbar-sep"></div>
+
+    <div class="toolbar-group">
+      <label class="prop-label" style="width:auto;color:#666;font-size:10px;">Cor</label>
+      <input type="color" id="tb-color" value="#ff3b3b" class="prop-color" title="Cor da anotação">
+      <label class="prop-label" style="width:auto;color:#666;font-size:10px;margin-left:4px;">Espessura</label>
+      <input type="range" id="tb-stroke" min="1" max="20" value="3" style="width:60px;accent-color:#4ade80;" title="Espessura do traço">
+    </div>
+
+    <div class="toolbar-right">
+      <div class="toolbar-zoom">
+        <button class="tb" id="tb-zoom-out" style="width:24px;height:24px;font-size:14px;">−</button>
+        <span id="zoom-label">100%</span>
+        <button class="tb" id="tb-zoom-in" style="width:24px;height:24px;font-size:14px;">+</button>
+        <button class="tb" id="tb-zoom-fit" style="width:24px;height:24px;font-size:11px;" title="Ajustar">⊞<span class="tip">Ajustar à tela</span></button>
+      </div>
+      <div class="toolbar-sep"></div>
+      <button class="tb" id="tb-copy" title="Copiar">📋<span class="tip">Copiar (Ctrl+C)</span></button>
+      <div style="position:relative;">
+        <button class="btn-export" id="tb-download">⬇ Salvar</button>
+        <div class="dropdown" id="dd-export">
+          <div class="dd-item" data-fmt="png">🖼️ PNG <span class="dd-key">Ctrl+S</span></div>
+          <div class="dd-item" data-fmt="jpg">📷 JPG</div>
+          <div class="dd-item" data-fmt="webp">🌐 WebP</div>
+          <div class="dd-item" data-fmt="avif">✨ AVIF</div>
+          <div class="dd-item" data-fmt="bmp">🎨 BMP</div>
+          <div class="dd-item" data-fmt="ico">🏷️ ICO</div>
+          <div class="dd-item" data-fmt="gif">🎞️ GIF</div>
+          <div style="height:1px;background:#1a1a1a;margin:4px 0;"></div>
+          <div class="dd-item" data-fmt="clipboard">📋 Copiar para clipboard <span class="dd-key">Ctrl+C</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="canvas-area" id="canvas-area">
+    <div class="canvas-wrap" id="canvas-wrap">
+      <canvas id="main-canvas"></canvas>
+      <canvas class="ann-layer" id="ann-canvas"></canvas>
+      <div class="crop-overlay" id="crop-overlay">
+        <div class="crop-dim" id="crop-dim-top"></div>
+        <div class="crop-dim" id="crop-dim-bottom"></div>
+        <div class="crop-dim" id="crop-dim-left"></div>
+        <div class="crop-dim" id="crop-dim-right"></div>
+        <div class="crop-box" id="crop-box">
+          <div class="crop-handle nw" data-dir="nw"></div>
+          <div class="crop-handle ne" data-dir="ne"></div>
+          <div class="crop-handle sw" data-dir="sw"></div>
+          <div class="crop-handle se" data-dir="se"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <span id="img-dimensions"></span>
+    <span id="status-text"></span>
+    <span class="info" id="img-size"></span>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="editor.js"></script>
+</body>
+</html>

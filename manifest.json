@@ -1,0 +1,61 @@
+{
+  "manifest_version": 3,
+  "name": "DevX",
+  "version": "1.0.0",
+  "description": "Toolkit completo para devs: iframe detector, color picker, font tools, anti-protection remover e mais",
+  "permissions": [
+    "activeTab",
+    "bookmarks",
+    "contextMenus",
+    "cookies",
+    "downloads",
+    "history",
+    "management",
+    "scripting",
+    "storage",
+    "clipboardWrite",
+    "system.cpu",
+    "system.memory",
+    "system.display",
+    "tabs",
+    "topSites",
+    "webNavigation"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/logo.png",
+      "48": "icons/logo.png",
+      "128": "icons/logo.png"
+    }
+  },
+  "icons": {
+    "16": "icons/logo.png",
+    "48": "icons/logo.png",
+    "128": "icons/logo.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["inject.js", "editor.html", "editor.js", "interceptor-inject.js", "interceptor.html", "interceptor.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
