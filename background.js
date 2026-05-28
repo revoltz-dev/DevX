@@ -1,4 +1,9 @@
 const iframeData = {};
+
+function getTabIframeUrls(tabId) {
+  const frames = iframeData[tabId] || {};
+  return [...new Set(Object.values(frames).flat())];
+}
 let menuUpdateTimer = null;
 
 let srState = { recording: false, isPaused: false, startTime: 0, done: false };
@@ -107,7 +112,7 @@ chrome.runtime.onConnect.addListener((port) => {
 function updateIframeMenu(tabId) {
   clearTimeout(menuUpdateTimer);
   menuUpdateTimer = setTimeout(() => {
-    const urls = iframeData[tabId] || [];
+    const urls = getTabIframeUrls(tabId);
 
     chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({
@@ -266,9 +271,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === "IFRAMES_UPDATED" && sender.tab) {
     const tabId = sender.tab.id;
-    iframeData[tabId] = message.urls;
-    updateBadge(tabId, message.urls.length);
+    const frameId = sender.frameId ?? 0;
+    if (!iframeData[tabId]) iframeData[tabId] = {};
+    iframeData[tabId][frameId] = message.urls;
+    const allUrls = getTabIframeUrls(tabId);
+    updateBadge(tabId, allUrls.length);
     updateIframeMenu(tabId);
+  }
+
+  if (message.type === "GET_ALL_IFRAMES") {
+    sendResponse({ urls: getTabIframeUrls(message.tabId) });
+    return true;
   }
 
   if (message.type === "CAPTURE_TAB" && sender.tab) {
@@ -508,7 +521,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 
   if (info.menuItemId.startsWith("revoltz-iframe-copy-")) {
     const index = parseInt(info.menuItemId.replace("revoltz-iframe-copy-", ""), 10);
-    const urls = iframeData[tab.id] || [];
+    const urls = getTabIframeUrls(tab.id);
     if (urls[index]) {
       chrome.scripting.executeScript({
         target: { tabId: tab.id },
@@ -543,7 +556,7 @@ chrome.tabs.onActivated.addListener(({ tabId }) => {
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   if (changeInfo.status === "loading") {
-    iframeData[tabId] = [];
+    iframeData[tabId] = {};
     updateBadge(tabId, 0);
     updateIframeMenu(tabId);
   }
@@ -553,10 +566,23 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   }
 });
 
-// ─── Re-inject interceptor into new frames (iframes loaded after start) ───────
+// ─── Track sub-frame navigations to detect nested iframes ────────────────────
 chrome.webNavigation.onDOMContentLoaded.addListener((details) => {
-  const { tabId, frameId } = details;
+  const { tabId, frameId, parentFrameId, url } = details;
   if (frameId === 0) return; // main frame handled by tabs.onUpdated
+
+  // Record this frame's URL as an iframe found in its parent's slot
+  if (url && !url.startsWith("about:") && !url.startsWith("chrome-extension:") && !url.startsWith("data:")) {
+    const parentId = (typeof parentFrameId === "number" && parentFrameId >= 0) ? parentFrameId : 0;
+    if (!iframeData[tabId]) iframeData[tabId] = {};
+    const existing = iframeData[tabId][parentId] || [];
+    if (!existing.includes(url)) {
+      iframeData[tabId][parentId] = [...existing, url];
+      updateBadge(tabId, getTabIframeUrls(tabId).length);
+      updateIframeMenu(tabId);
+    }
+  }
+
   if (!interceptorActiveTabs.has(tabId)) return;
   injectInterceptorInFrame(tabId, frameId);
 });

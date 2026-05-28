@@ -409,7 +409,7 @@ function openPanel(featureId) {
 }
 
 function loadIframesPanel(panel) {
-  chrome.tabs.sendMessage(activeTabId, { type: "GET_IFRAMES" }, (response) => {
+  chrome.runtime.sendMessage({ type: "GET_ALL_IFRAMES", tabId: activeTabId }, (response) => {
     if (chrome.runtime.lastError || !response) {
       panel.innerHTML = '<p class="empty">Não foi possível ler esta página.</p>';
       return;
@@ -3320,7 +3320,7 @@ function buildFeaturesToggle() {
 
 function fetchIframeCount() {
   if (!activeTabId) return;
-  chrome.tabs.sendMessage(activeTabId, { type: "GET_IFRAMES" }, (response) => {
+  chrome.runtime.sendMessage({ type: "GET_ALL_IFRAMES", tabId: activeTabId }, (response) => {
     if (chrome.runtime.lastError || !response) return;
     iframeCount = (response.urls || []).length;
     buildMenu();

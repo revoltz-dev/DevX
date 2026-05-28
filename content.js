@@ -1,4 +1,5 @@
 (function () {
+  const isTopFrame = window.self === window.top;
   let config = {};
   const unprotectState = {
     rightclick: false,
@@ -44,10 +45,14 @@
     unprotect("all");
   }
 
-  chrome.storage.sync.get("revoltzConfig", (data) => {
-    config = data.revoltzConfig || {};
+  if (!isTopFrame) {
     initIframeDetector();
-  });
+  } else {
+    chrome.storage.sync.get("revoltzConfig", (data) => {
+      config = data.revoltzConfig || {};
+      initIframeDetector();
+    });
+  }
 
   chrome.storage.onChanged.addListener((changes) => {
     if (changes.revoltzConfig) {
@@ -496,6 +501,15 @@
       }
       if (imgUrl.startsWith("data:")) {
         sendToEditor(imgUrl);
+      } else if (imgUrl.startsWith("blob:")) {
+        fetch(imgUrl)
+          .then((r) => r.blob())
+          .then((blob) => {
+            const reader = new FileReader();
+            reader.onload = () => sendToEditor(reader.result);
+            reader.readAsDataURL(blob);
+          })
+          .catch(() => showToast("Erro ao carregar imagem blob"));
       } else {
         chrome.runtime.sendMessage({ type: "FETCH_IMAGE_AS_DATAURI", url: imgUrl }, (resp) => {
           if (resp?.dataUri) sendToEditor(resp.dataUri);
@@ -535,6 +549,15 @@
       }
       if (imgUrl.startsWith("data:")) {
         copyDataUrl(imgUrl);
+      } else if (imgUrl.startsWith("blob:")) {
+        fetch(imgUrl)
+          .then((r) => r.blob())
+          .then((blob) => {
+            const reader = new FileReader();
+            reader.onload = () => copyDataUrl(reader.result);
+            reader.readAsDataURL(blob);
+          })
+          .catch(() => showToast("Erro ao carregar imagem blob"));
       } else {
         chrome.runtime.sendMessage({ type: "FETCH_IMAGE_AS_DATAURI", url: imgUrl }, (resp) => {
           if (resp?.dataUri) copyDataUrl(resp.dataUri);
@@ -588,6 +611,9 @@
 
   function getFilenameFromUrl(url, format) {
     try {
+      if (url.startsWith("blob:") || url.startsWith("data:")) {
+        return `image-${Date.now()}.${format}`;
+      }
       const urlObj = new URL(url);
       let name = urlObj.pathname.split("/").pop() || "";
       name = name.split("?")[0].split("#")[0];
@@ -603,6 +629,11 @@
 
   function getOriginalExtension(url) {
     try {
+      if (url.startsWith("blob:")) return "png";
+      if (url.startsWith("data:")) {
+        const mimeMatch = url.match(/^data:image\/([a-zA-Z0-9+]+)/);
+        return mimeMatch ? mimeMatch[1].replace("+xml", "").toLowerCase() : "png";
+      }
       const pathname = new URL(url).pathname;
       const match = pathname.match(/\.([a-zA-Z0-9]+)$/);
       return match ? match[1].toLowerCase() : "png";
@@ -612,6 +643,27 @@
   }
 
   function downloadDirect(url, filename) {
+    // blob: URLs are scoped to the page — fetch them here in the content script
+    if (url.startsWith("blob:")) {
+      fetch(url)
+        .then((r) => r.blob())
+        .then((blob) => saveBlobAs(blob, filename))
+        .catch(() => {
+          // If fetch fails, try loading via <img> + canvas as last resort
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => {
+            const c = document.createElement("canvas");
+            c.width = img.naturalWidth;
+            c.height = img.naturalHeight;
+            c.getContext("2d").drawImage(img, 0, 0);
+            c.toBlob((b) => { if (b) saveBlobAs(b, filename); }, "image/png");
+          };
+          img.onerror = () => showToast("Erro ao baixar imagem blob");
+          img.src = url;
+        });
+      return;
+    }
     chrome.runtime.sendMessage({ type: "FETCH_IMAGE_AS_DATAURI", url: url }, (resp) => {
       if (resp?.dataUri) {
         outputImage(resp.dataUri, filename);
@@ -675,7 +727,17 @@
         }, mimeType, 0.95);
       };
       img.onerror = () => {
-        if (!isRetry) {
+        if (!isRetry && url.startsWith("blob:")) {
+          // blob: URLs can't be fetched by background — fetch in content script
+          fetch(url)
+            .then((r) => r.blob())
+            .then((blob) => {
+              const reader = new FileReader();
+              reader.onload = () => convertAndDownload(reader.result, true);
+              reader.readAsDataURL(blob);
+            })
+            .catch(() => downloadDirect(url, filename));
+        } else if (!isRetry) {
           chrome.runtime.sendMessage({ type: "FETCH_IMAGE_AS_DATAURI", url: url }, (resp) => {
             if (resp?.dataUri) {
               convertAndDownload(resp.dataUri, true);
@@ -759,7 +821,16 @@
         }
       };
       img.onerror = () => {
-        if (!isRetry) {
+        if (!isRetry && url.startsWith("blob:")) {
+          fetch(url)
+            .then((r) => r.blob())
+            .then((blob) => {
+              const reader = new FileReader();
+              reader.onload = () => doConvert(reader.result, true);
+              reader.readAsDataURL(blob);
+            })
+            .catch(() => downloadDirect(url, filename));
+        } else if (!isRetry) {
           chrome.runtime.sendMessage({ type: "FETCH_IMAGE_AS_DATAURI", url: url }, (resp) => {
             if (resp?.dataUri) doConvert(resp.dataUri, true);
             else downloadDirect(url, filename);
@@ -1518,6 +1589,8 @@
   }
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (!isTopFrame) return;
+
     if (message.type === "GET_IFRAMES") {
       sendResponse({ urls: getIframeUrls() });
     }
