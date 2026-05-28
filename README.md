@@ -1,176 +1,176 @@
 # DevX
 
-Toolkit completo para desenvolvedores web em formato de extensão para navegadores Chromium (Chrome, Edge, Brave, Opera).
+A complete toolkit for web developers, packaged as a browser extension for Chromium browsers (Chrome, Edge, Brave, Opera).
 
-Reúne **51 ferramentas** divididas em **11 categorias** + 3 painéis especiais (editor de imagem, interceptor de rede e gravador de tela). A ideia é substituir aquele monte de extensões separadas (color picker, font finder, screenshot, cookie editor, etc.) por um único pacote unificado.
+It bundles **51 tools** across **11 categories** plus 3 dedicated panels (image editor, network interceptor, and screen recorder). The goal is to replace a pile of single-purpose extensions (color picker, font finder, screenshot, cookie editor, etc.) with one unified package.
 
-**Repositório:** https://github.com/revoltz-dev/DevX
+**Repository:** https://github.com/revoltz-dev/DevX
 
 ---
 
-## Instalação
+## Installation
 
-Ainda não publicado na Chrome Web Store. Para instalar manualmente:
+Not yet published on the Chrome Web Store. To install manually:
 
-1. Baixe ou clone este repositório:
+1. Download or clone this repository:
    ```bash
    git clone https://github.com/revoltz-dev/DevX.git
    ```
-2. Abra `chrome://extensions` no navegador
-3. Ative o **Modo do desenvolvedor** (canto superior direito)
-4. Clique em **Carregar sem compactação** e selecione a pasta do projeto
-5. Fixe o ícone do DevX na barra de extensões
+2. Open `chrome://extensions` in your browser
+3. Enable **Developer mode** (top right corner)
+4. Click **Load unpacked** and select the project folder
+5. Pin the DevX icon to the extensions bar
 
 ---
 
-## Funcionalidades
+## Features
 
-### Cores
-- **Color Picker** — captura a cor exata de qualquer pixel da página ou escolhe via paleta
-- **Contraste WCAG** — verifica proporção de contraste entre duas cores para acessibilidade
-- **Modo Escuro Forçado** — inverte as cores do site para simular dark mode
-- **CSS Variables** — lista todas as custom properties (`--varname`) definidas na página
+### Colors
+- **Color Picker** — grab the exact color of any pixel on the page or pick from a palette
+- **WCAG Contrast** — check the contrast ratio between two colors for accessibility
+- **Force Dark Mode** — invert site colors to simulate dark mode
+- **CSS Variables** — list every custom property (`--varname`) defined on the page
 
-### Tipografia
-- **Qual Fonte** — identifica fonte, tamanho e peso ao passar o mouse sobre o texto
-- **Trocar Fonte** — substitui todas as fontes do site por outra (com favoritos e recentes)
-- **Contar Palavras** — conta palavras, caracteres e linhas do conteúdo
-- **Editar Textos** — torna todo o texto da página editável via `contenteditable`
-- **Lorem Ipsum** — gera texto placeholder com volumes configuráveis
+### Typography
+- **What Font** — identify font, size, and weight by hovering over text
+- **Swap Font** — replace every font on the site with another (with favorites and recents)
+- **Word Count** — count words, characters, and lines in the content
+- **Edit Text** — make every text on the page editable via `contenteditable`
+- **Lorem Ipsum** — generate placeholder text with configurable lengths
 
 ### Layout
-- **Grid Overlay** — exibe overlay de grade de colunas personalizável
-- **Régua** — mede distâncias em pixels entre dois pontos clicados
-- **Box Model** — inspeciona margin, padding e border ao passar o mouse
-- **Outline Elementos** — destaca bordas coloridas de elementos por tipo (div, img, etc.)
-- **Visão Mobile** — emula viewport de celular (iPhone/Android)
-- **Z-Index Map** — visualiza a hierarquia de elementos com z-index definido
+- **Grid Overlay** — show a customizable column grid overlay
+- **Ruler** — measure pixel distances between two clicked points
+- **Box Model** — inspect margin, padding, and border on hover
+- **Element Outline** — outline elements by type (div, img, etc.) in distinct colors
+- **Mobile View** — emulate mobile viewports (iPhone/Android)
+- **Z-Index Map** — visualize the hierarchy of elements with z-index set
 
-### Mídia
-- **Salvar Imagem** — exporta imagens em PNG, JPG ou WEBP, com crop e filtros no editor embutido
-- **Imagem ↔ Base64** — converte URL de imagem para base64 e vice-versa
-- **Capturar Print** — screenshot da área visível, página completa ou elemento específico
-- **Gravador de Tela** — grava tela, janela ou aba com áudio do sistema e microfone, com pause/resume
-- **Imagens sem Alt** — destaca imagens sem atributo `alt` para revisão de acessibilidade
-- **Lazy Load Checker** — detecta imagens sem `loading="lazy"`
-- **QR Code** — gera QR Code da URL atual para abrir no celular
+### Media
+- **Save Image** — export images as PNG, JPG, or WEBP, with crop and filters in the built-in editor
+- **Image ↔ Base64** — convert image URLs to base64 and back
+- **Screenshot** — capture the visible area, full page, or a specific element
+- **Screen Recorder** — record screen, window, or tab with system audio and mic, with pause/resume
+- **Images Without Alt** — highlight images missing the `alt` attribute for accessibility review
+- **Lazy Load Checker** — detect images without `loading="lazy"`
+- **QR Code** — generate a QR Code for the current URL to open on your phone
 
 ### SEO
-- **Meta Tags** — lista todas as meta tags (`<meta>`, Open Graph, Twitter Card)
-- **Links Externos** — enumera todos os links externos da página
-- **Headings** — mostra a hierarquia H1–H6 para validar estrutura semântica
-- **Robots.txt** — busca e exibe o `/robots.txt` do domínio
-- **Sitemap** — localiza e exibe `sitemap.xml`
-- **Open Graph Preview** — simula como o link apareceria em redes sociais
+- **Meta Tags** — list every meta tag (`<meta>`, Open Graph, Twitter Card)
+- **External Links** — enumerate all external links on the page
+- **Headings** — show the H1–H6 hierarchy to validate semantic structure
+- **Robots.txt** — fetch and display the domain's `/robots.txt`
+- **Sitemap** — locate and display `sitemap.xml`
+- **Open Graph Preview** — simulate how the link would appear on social media
 
-### Inspeção
-- **Iframes** — detecta e lista todos os iframes da página em tempo real
-- **Remover Elemento** — clique para deletar elementos do DOM
-- **Contagem Elementos** — quantifica cada tag (`<div>`, `<p>`, `<img>` etc.)
-- **Requisições** — lista todos os recursos carregados (CSS, JS, imagens, APIs)
-- **Interceptor** — intercepta XHR, Fetch e WebSocket em tempo real com detalhes de headers e body
-- **Ver Código Fonte** — abre o HTML source da aba em nova janela
-- **Tech Stack** — detecta frameworks (React, Vue, Angular), bibliotecas e versões
+### Inspection
+- **Iframes** — detect and list all iframes on the page in real time
+- **Remove Element** — click to delete elements from the DOM
+- **Element Count** — count every tag (`<div>`, `<p>`, `<img>`, etc.)
+- **Requests** — list every resource loaded (CSS, JS, images, APIs)
+- **Interceptor** — intercept XHR, Fetch, and WebSocket in real time with header and body details
+- **View Source** — open the tab's HTML source in a new window
+- **Tech Stack** — detect frameworks (React, Vue, Angular), libraries, and versions
 
 ### Storage
-- **Limpar Storage** — apaga localStorage, sessionStorage e cookies de uma vez
-- **Storage Viewer** — visualiza, edita e deleta itens de localStorage e sessionStorage
-- **Cookie Editor** — gerencia cookies (nome, valor, expiração, domínio)
+- **Clear Storage** — wipe localStorage, sessionStorage, and cookies in one go
+- **Storage Viewer** — browse, edit, and delete items in localStorage and sessionStorage
+- **Cookie Editor** — manage cookies (name, value, expiration, domain)
 
 ### Performance
-- **Page Speed** — mostra TTFB, DOM Ready, Load Time, contagem de recursos e transfer size
-- **Security Headers** — verifica presença de CSP, HSTS, X-Frame-Options e dá um score de 0 a 100%
-- **Disable JS** — desativa JavaScript na aba para simular cenários sem JS
-- **Disable CSS** — remove todas as folhas de estilo da página
-- **Unprotect** — remove proteções anti-copiar, anti-clique direito, bloqueio de seleção e devtools
+- **Page Speed** — show TTFB, DOM Ready, Load Time, resource count, and transfer size
+- **Security Headers** — check for CSP, HSTS, X-Frame-Options and give a 0–100% score
+- **Disable JS** — turn off JavaScript on the tab to simulate no-JS scenarios
+- **Disable CSS** — strip every stylesheet from the page
+- **Unprotect** — remove anti-copy, anti-right-click, selection blockers, and devtools blockers
 
-### Geradores
-- **Gerador de Dados** — senhas, pessoa fake (nome, CPF, RG, endereço), cartão (Visa/Master/Amex), CPF/CNPJ, UUID
-- **Hash Generator** — SHA-1, SHA-256 e SHA-512 de qualquer texto
-- **Timestamp** — converte unix timestamp ↔ data humana e gera ISO 8601
-- **Base64 Encode/Decode** — codifica e decodifica texto em Base64
-- **Console Logger** — captura e exibe `console.log` em painel próprio (log/warn/error)
+### Generators
+- **Data Generator** — passwords, fake person (name, CPF, RG, address), credit card (Visa/Master/Amex), CPF/CNPJ, UUID
+- **Hash Generator** — SHA-1, SHA-256, and SHA-512 for any input
+- **Timestamp** — convert unix timestamp ↔ human date and generate ISO 8601
+- **Base64 Encode/Decode** — encode and decode text in Base64
+- **Console Logger** — capture and display `console.log` in a dedicated panel (log/warn/error)
 
-### Utilidades
-- **JSON Formatter** — formata e destaca JSON com tree viewer
-- **Traduzir Página** — abre a página atual no Google Translate
+### Utilities
+- **JSON Formatter** — format and highlight JSON with a tree viewer
+- **Translate Page** — open the current page in Google Translate
 
 ---
 
-## Painéis especiais
+## Dedicated panels
 
-### Editor de Imagem
-Painel dedicado que abre toda screenshot ou imagem capturada. Oferece:
-- Crop (recorte livre e proporcional)
-- Anotações (linhas, retângulos, setas)
+### Image Editor
+Dedicated panel that opens for every screenshot or captured image. Offers:
+- Crop (free-form and proportional)
+- Annotations (lines, rectangles, arrows)
 - Zoom, undo/redo
-- Exportação em PNG, download ou cópia para clipboard
+- Export as PNG, download or copy to clipboard
 
-### Interceptor de Rede
-Painel para capturar tráfego em tempo real:
-- Captura XHR, Fetch e WebSocket
-- Filtros por tipo, URL e iframe
-- Visualização detalhada de headers, payload e resposta com syntax highlight
-- Download do log no formato HAR
+### Network Interceptor
+Panel for capturing traffic in real time:
+- Captures XHR, Fetch, and WebSocket
+- Filters by type, URL, and iframe
+- Detailed view of headers, payload, and response with syntax highlighting
+- Export the log in HAR format
 
-### Gravador de Tela
-Gravação completa com:
-- Captura de tela inteira, janela ou aba
-- Áudio do sistema + microfone
-- Controles de pause/resume e timer HH:MM:SS
-- Output em WebM, com download ou clipboard
+### Screen Recorder
+Full recording with:
+- Capture full screen, window, or tab
+- System audio + microphone
+- Pause/resume controls and HH:MM:SS timer
+- Output in WebM, download or copy to clipboard
 
 ---
 
 ## Interface
 
-- **Popup principal** (360×520) com menu categorizado
-- Busca rápida por nome de ferramenta
-- Abas **Todos**, **Recentes** e **Favoritos** (marque com a estrela)
-- Barra superior com favicon, título e URL da aba ativa, além de botões para abrir o popup em janela flutuante
-- Configurações para ativar/desativar ferramentas e definir output padrão (editor embutido vs. download direto)
+- **Main popup** (360×520) with a categorized menu
+- Quick search by tool name
+- **All**, **Recent**, and **Favorites** tabs (mark with the star)
+- Top bar with favicon, title, and URL of the active tab, plus buttons to open the popup in a floating window
+- Settings to enable/disable tools and define the default output (built-in editor vs. direct download)
 
 ---
 
-## Permissões
+## Permissions
 
-A extensão solicita as seguintes permissões, cada uma com um propósito específico:
+The extension requests the following permissions, each with a specific purpose:
 
-| Permissão | Usada para |
-|-----------|-----------|
-| `activeTab`, `scripting` | Executar ferramentas na página atual |
-| `cookies` | Cookie Editor e Limpar Storage |
-| `storage` | Salvar favoritos, configurações e recentes |
-| `downloads` | Exportar screenshots, gravações e arquivos |
-| `tabs`, `webNavigation` | Informações da aba e navegação |
-| `contextMenus` | Menus de clique direito |
-| `history`, `topSites`, `bookmarks` | Funções de navegação e atalhos |
-| `system.cpu`, `system.memory`, `system.display` | Info de sistema exibida no popup |
-| `clipboardWrite` | Copiar cores, textos e dados gerados |
-| `<all_urls>` | Funcionar em qualquer site |
+| Permission | Used for |
+|------------|----------|
+| `activeTab`, `scripting` | Running tools on the current page |
+| `cookies` | Cookie Editor and Clear Storage |
+| `storage` | Saving favorites, settings, and recents |
+| `downloads` | Exporting screenshots, recordings, and files |
+| `tabs`, `webNavigation` | Tab info and navigation |
+| `contextMenus` | Right-click menus |
+| `history`, `topSites`, `bookmarks` | Navigation features and shortcuts |
+| `system.cpu`, `system.memory`, `system.display` | System info shown in the popup |
+| `clipboardWrite` | Copying colors, text, and generated data |
+| `<all_urls>` | Working on any site |
 
 ---
 
-## Stack técnica
+## Tech stack
 
 - **Manifest V3** (Chrome Extensions)
-- JavaScript puro (sem framework ou build step)
-- Service Worker em `background.js`
-- Content script em `content.js` injetado em `document_start`
-- Páginas dedicadas: `popup.html`, `editor.html`, `interceptor.html`, `recorder.html`
+- Pure JavaScript (no framework or build step)
+- Service worker in `background.js`
+- Content script in `content.js` injected at `document_start`
+- Dedicated pages: `popup.html`, `editor.html`, `interceptor.html`, `recorder.html`
 
 ---
 
-## Estrutura do projeto
+## Project structure
 
 ```
 DevX/
-├── manifest.json           # Configuração da extensão (MV3)
+├── manifest.json           # Extension config (MV3)
 ├── background.js           # Service worker
-├── content.js              # Script injetado em todas as páginas
-├── inject.js               # Script de página (world: MAIN)
-├── popup.html / popup.js   # Interface principal
-├── editor.html / editor.js # Editor de imagens
+├── content.js              # Script injected into every page
+├── inject.js               # Page-world script (world: MAIN)
+├── popup.html / popup.js   # Main UI
+├── editor.html / editor.js # Image editor
 ├── interceptor.html / interceptor.js / interceptor-inject.js
 ├── recorder.html / recorder.js
 └── icons/
@@ -178,10 +178,10 @@ DevX/
 
 ---
 
-## Contribuindo
+## Contributing
 
-Pull requests são bem-vindos. Para mudanças grandes, abra uma issue antes para discutir o que você gostaria de mudar.
+Pull requests are welcome. For major changes, open an issue first to discuss what you'd like to change.
 
-## Licença
+## License
 
-[MIT](LICENSE) — uso livre, incluindo uso comercial, desde que o aviso de copyright seja mantido.
+[MIT](LICENSE) — free to use, including commercially, as long as the copyright notice is preserved.
