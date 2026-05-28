@@ -1,4 +1,4 @@
-# DevX
+# DevX — Developer Toolkit
 
 A complete toolkit for web developers, packaged as a browser extension for Chromium browsers (Chrome, Edge, Brave, Opera).
 
